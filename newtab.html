@@ -2,70 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>New Tab</title>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="home/style.css">
+  <style>
+    body {
+      background-color: #080b10;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      font-size: 48px;
+      margin-bottom: 24px;
+      color: #38bdf8;
+    }
+    .search-box {
+      width: 80%;
+      max-width: 600px;
+      padding: 14px 20px;
+      border-radius: 24px;
+      border: 1px solid #1e293b;
+      background-color: #0f141c;
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+    }
+    .search-box:focus {
+      border-color: #2563eb;
+    }
+  </style>
 </head>
-<body class="newtab-body">
-  <div class="newtab-container">
-    <div class="brand-logo">
-      <i data-lucide="zap" class="brand-icon-lucide"></i>
-      <h1 class="brand-name">STATIC</h1>
-    </div>
-    
-    <div class="search-box">
-      <input type="text" id="newtab-search" class="search-input" placeholder="Search the web or enter URL..." autofocus spellcheck="false" />
-    </div>
-
-    <div class="shortcuts-grid">
-      <a href="home/index.html" class="shortcut-item">
-        <div class="shortcut-icon"><i data-lucide="home"></i></div>
-        <span class="shortcut-label">Static Home</span>
-      </a>
-      <a href="https://google.com" class="shortcut-item" data-url="https://google.com">
-        <div class="shortcut-icon"><i data-lucide="search"></i></div>
-        <span class="shortcut-label">Google</span>
-      </a>
-      <a href="https://youtube.com" class="shortcut-item" data-url="https://youtube.com">
-        <div class="shortcut-icon"><i data-lucide="youtube"></i></div>
-        <span class="shortcut-label">YouTube</span>
-      </a>
-      <a href="https://discord.com" class="shortcut-item" data-url="https://discord.com">
-        <div class="shortcut-icon"><i data-lucide="message-square"></i></div>
-        <span class="shortcut-label">Discord</span>
-      </a>
-      <a href="https://github.com" class="shortcut-item" data-url="https://github.com">
-        <div class="shortcut-icon"><i data-lucide="github"></i></div>
-        <span class="shortcut-label">GitHub</span>
-      </a>
-    </div>
-  </div>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      lucide.createIcons();
-    });
-
-    document.getElementById('newtab-search').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        const val = this.value.trim();
-        if (val) {
-          window.parent.postMessage({ type: 'NAVIGATE', url: val }, '*');
-        }
-      }
-    });
-
-    document.querySelectorAll('.shortcut-item').forEach(item => {
-      item.addEventListener('click', function(e) {
-        const url = this.getAttribute('data-url');
-        if (url) {
-          e.preventDefault();
-          window.parent.postMessage({ type: 'NAVIGATE', url: url }, '*');
-        }
-      });
-    });
-  </script>
+<body>
+  <h1>Static</h1>
+  <input type="text" class="search-box" placeholder="Search or type a URL..." onkeydown="if(event.key==='Enter') parent.postMessage({type:'NAVIGATE', url: this.value}, '*')" />
 </body>
 </html>
-
