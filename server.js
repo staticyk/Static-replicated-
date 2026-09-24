@@ -14,7 +14,7 @@ const bare = createBareServer('/bare/');
 app.use(express.static(__dirname));
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'home', 'index.html'));
 });
 
 server.on('request', (req, res) => {
@@ -35,5 +35,5 @@ server.on('upgrade', (req, socket, head) => {
 
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Static running at http://localhost:${PORT}`);
 });
