@@ -1,10 +1,10 @@
-// Scramjet service worker.
-// Loads the controller, which intercepts and routes proxied requests.
-// This file MUST be served from your site root so its scope covers the whole app.
-importScripts("/controller/controller.sw.js");
+importScripts('https://cdn.jsdelivr.net/npm/@titaniumnetwork-dev/ultraviolet@2.0.0/dist/uv.bundle.js');
+importScripts('https://cdn.jsdelivr.net/npm/@titaniumnetwork-dev/ultraviolet@2.0.0/dist/uv.config.js');
 
-addEventListener("fetch", (e) => {
-  if ($scramjetController.shouldRoute(e)) {
-    e.respondWith($scramjetController.route(e));
+const uv = new UVServiceWorker();
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.url.startsWith(self.location.origin + '/service/')) {
+    event.respondWith(uv.fetch(event));
   }
 });
