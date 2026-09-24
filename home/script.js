@@ -5,7 +5,7 @@
       .catch(err => console.error('Service Worker Error:', err));
   }
 
-  const SCRAMJET_PREFIX = '/~/';
+  const SCRAMJET_PREFIX = '/~/'; 
 
   let tabs = [];
   let activeTabId = null;
@@ -23,7 +23,7 @@
     drive: { title: 'Google Drive', icon: 'https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png' },
     classroom: { title: 'Google Classroom', icon: 'https://ssl.gstatic.com/classroom/favicon.png' },
     canvas: { title: 'Dashboard', icon: 'https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon-e10d657a73.ico' },
-    reset: { title: 'Static', icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>" }
+    reset: { title: 'Static', icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>" }
   };
 
   function encodeProxyUrl(url) {
@@ -66,7 +66,7 @@
     window.location.replace('https://google.com');
   }
 
-  function createTab(url = 'newtab.html', title = 'New Tab') {
+  function createTab(url = '../newtab.html', title = 'New Tab') {
     try {
       const id = 'tab-' + Math.random().toString(36).substring(2, 9);
       const iframe = document.createElement('iframe');
@@ -91,7 +91,7 @@
       tabEl.id = 'tab-element-' + tab.id;
       
       tabEl.innerHTML = `
-        <span class="tab-favicon">🌐</span>
+        <span class="tab-favicon">⚡</span>
         <span class="tab-title">${tab.title}</span>
         <span class="tab-close">✕</span>
       `;
@@ -150,7 +150,7 @@
   }
 
   function updateAddressBar(url) {
-    addressInput.value = (url === 'newtab.html') ? '' : url;
+    addressInput.value = (url === '../newtab.html' || url === 'newtab.html') ? '' : url;
   }
 
   function navigateCurrentTab(input) {
@@ -160,7 +160,7 @@
 
     let targetUrl = input;
     
-    if (!/^https?:\/\//i.test(targetUrl) && !targetUrl.startsWith('home/') && targetUrl !== 'newtab.html') {
+    if (!/^https?:\/\//i.test(targetUrl) && !targetUrl.startsWith('home/') && !targetUrl.includes('newtab.html')) {
       if (targetUrl.includes('.') && !targetUrl.includes(' ')) {
         targetUrl = 'https://' + targetUrl;
       } else {
@@ -184,7 +184,7 @@
     }
   }
 
-  newTabBtn.addEventListener('click', () => createTab('newtab.html', 'New Tab'));
+  newTabBtn.addEventListener('click', () => createTab('../newtab.html', 'New Tab'));
 
   addressInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
@@ -212,7 +212,7 @@
     if (tab) tab.iframe.src = tab.iframe.src;
   });
 
-  btnHome.addEventListener('click', () => navigateCurrentTab('newtab.html'));
+  btnHome.addEventListener('click', () => navigateCurrentTab('../newtab.html'));
 
   window.addEventListener('message', (event) => {
     if (!event.data) return;
@@ -229,5 +229,5 @@
   });
 
   restoreCloak();
-  createTab('newtab.html', 'New Tab');
+  createTab('../newtab.html', 'New Tab');
 })();
