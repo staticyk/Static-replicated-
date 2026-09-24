@@ -5,89 +5,152 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>New Tab</title>
   <style>
-    :root {
-      --bg-dark: #050811;
-      --bg-card: #0d1527;
-      --bg-hover: #121d33;
-      --accent-green: #10b981;
-      --accent-green-glow: rgba(16, 185, 129, 0.25);
-      --text-main: #f0fdf4;
-      --text-muted: #64748b;
-      --border: #0f232a;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0b0f19;
+      color: #e2e8f0;
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
     }
-    * { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
-    body { background-color: var(--bg-dark); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-    .clock { font-size: 3.5rem; font-weight: 800; margin-bottom: 24px; background: linear-gradient(135deg, #10b981, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px var(--accent-green-glow); }
-    .search-container { width: 100%; max-width: 580px; position: relative; margin-bottom: 30px; }
-    .search-input { width: 100%; padding: 14px 22px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 28px; color: var(--text-main); font-size: 15px; outline: none; transition: 0.2s; }
-    .search-input:focus { border-color: var(--accent-green); box-shadow: 0 0 20px var(--accent-green-glow); }
-    .shortcuts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; max-width: 580px; width: 100%; margin-bottom: 30px; }
-    .shortcut { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; text-decoration: none; color: var(--text-main); }
-    .shortcut:hover { background: var(--bg-hover); border-color: var(--accent-green); transform: translateY(-2px); }
-    .shortcut-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; background: rgba(16, 185, 129, 0.1); color: var(--accent-green); }
-    .shortcut-title { font-size: 12px; color: var(--text-muted); }
-    .controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
-    .btn { padding: 8px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); cursor: pointer; font-size: 13px; transition: 0.2s; }
-    .btn:hover { background: var(--bg-hover); color: var(--accent-green); border-color: var(--accent-green); }
+    .container {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #10b981;
+      letter-spacing: -0.5px;
+    }
+    .search-box {
+      width: 100%;
+    }
+    input {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 28px;
+      border: 1px solid #1e293b;
+      background: #131b2e;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    input:focus {
+      border-color: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    }
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 16px;
+      width: 100%;
+    }
+    .shortcut-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 8px;
+      background: #131b2e;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+    .shortcut-card:hover {
+      background: #1e293b;
+      border-color: #334155;
+      transform: translateY(-2px);
+    }
+    .shortcut-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #10b981;
+    }
+    .shortcut-title {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #94a3b8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    .shortcut-card:hover .shortcut-title {
+      color: #fff;
+    }
   </style>
 </head>
 <body>
-  <div class="clock" id="clock">00:00:00</div>
-  
-  <div class="search-container">
-    <input type="text" class="search-input" id="search-input" placeholder="Search Google or enter URL..." autocomplete="off" />
-  </div>
+  <div class="container">
+    <h1>Static Browser</h1>
+    
+    <div class="search-box">
+      <input type="text" id="nt-search" placeholder="Search DuckDuckGo or enter URL" autofocus />
+    </div>
 
-  <div class="shortcuts">
-    <div class="shortcut" onclick="nav('https://google.com')">
-      <div class="shortcut-icon">G</div>
-      <span class="shortcut-title">Google</span>
+    <div class="shortcuts-grid" id="shortcuts-grid">
+      <div class="shortcut-card" data-url="https://google.com">
+        <div class="shortcut-icon">G</div>
+        <span class="shortcut-title">Google</span>
+      </div>
+      <div class="shortcut-card" data-url="https://youtube.com">
+        <div class="shortcut-icon">▶</div>
+        <span class="shortcut-title">YouTube</span>
+      </div>
+      <div class="shortcut-card" data-url="https://github.com">
+        <div class="shortcut-icon">GH</div>
+        <span class="shortcut-title">GitHub</span>
+      </div>
+      <div class="shortcut-card" data-url="https://reddit.com">
+        <div class="shortcut-icon">R</div>
+        <span class="shortcut-title">Reddit</span>
+      </div>
+      <div class="shortcut-card" data-url="https://wikipedia.org">
+        <div class="shortcut-icon">W</div>
+        <span class="shortcut-title">Wikipedia</span>
+      </div>
+      <div class="shortcut-card" data-url="https://duckduckgo.com">
+        <div class="shortcut-icon">🦆</div>
+        <span class="shortcut-title">DuckDuckGo</span>
+      </div>
     </div>
-    <div class="shortcut" onclick="nav('https://youtube.com')">
-      <div class="shortcut-icon" style="color:#ef4444;">Y</div>
-      <span class="shortcut-title">YouTube</span>
-    </div>
-    <div class="shortcut" onclick="nav('https://discord.com')">
-      <div class="shortcut-icon" style="color:#6366f1;">D</div>
-      <span class="shortcut-title">Discord</span>
-    </div>
-    <div class="shortcut" onclick="nav('https://github.com')">
-      <div class="shortcut-icon">GH</div>
-      <span class="shortcut-title">GitHub</span>
-    </div>
-  </div>
-
-  <div class="controls">
-    <button class="btn" onclick="setCloak('drive')">Cloak: Drive</button>
-    <button class="btn" onclick="setCloak('classroom')">Cloak: Classroom</button>
-    <button class="btn" onclick="setCloak('reset')">Reset Title</button>
-    <button class="btn" onclick="openAboutBlank()">About:Blank</button>
   </div>
 
   <script>
-    function updateClock() {
-      const now = new Date();
-      document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    function nav(url) {
+    function navigate(url) {
       window.parent.postMessage({ type: 'NAVIGATE', url: url }, '*');
     }
 
-    function setCloak(preset) {
-      window.parent.postMessage({ type: 'SET_CLOAK', preset: preset }, '*');
-    }
+    document.getElementById('nt-search').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.target.value.trim()) {
+        navigate(e.target.value.trim());
+      }
+    });
 
-    function openAboutBlank() {
-      window.parent.postMessage({ type: 'OPEN_ABOUT_BLANK' }, '*');
-    }
-
-    document.getElementById('search-input').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const val = e.target.value.trim();
-        if (val) nav(val);
+    document.getElementById('shortcuts-grid').addEventListener('click', (e) => {
+      const card = e.target.closest('.shortcut-card');
+      if (card && card.dataset.url) {
+        navigate(card.dataset.url);
       }
     });
   </script>
