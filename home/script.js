@@ -1,13 +1,11 @@
 (function() {
-  // 1. Register Service Worker Safely (Won't crash if it fails)
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js')
       .then(() => console.log('Service Worker Registered'))
       .catch(err => console.error('Service Worker Error:', err));
   }
 
-  // 2. Scramjet Config (Change this if your Scramjet uses a different folder like '/scramjet/' or '/go/')
-  const SCRAMJET_PREFIX = '/~/'; 
+  const SCRAMJET_PREFIX = '/~/';
 
   let tabs = [];
   let activeTabId = null;
@@ -28,14 +26,11 @@
     reset: { title: 'Static', icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>" }
   };
 
-  // Scramjet URL Encoder
   function encodeProxyUrl(url) {
     if (!url) return '';
-    // If Scramjet exposes a built-in encoder, use it
     if (window.__scramjet && typeof window.__scramjet.encodeUrl === 'function') {
       return window.__scramjet.encodeUrl(url);
     }
-    // Fallback standard XOR encoding used by most proxies
     return encodeURIComponent(
       url.split('').map((char, ind) => (ind % 2 ? String.fromCharCode(char.charCodeAt(0) ^ 2) : char)).join('')
     );
@@ -96,9 +91,9 @@
       tabEl.id = 'tab-element-' + tab.id;
       
       tabEl.innerHTML = `
-        <span class="tab-favicon"><i data-lucide="zap"></i></span>
+        <span class="tab-favicon">🌐</span>
         <span class="tab-title">${tab.title}</span>
-        <span class="tab-close"><i data-lucide="x"></i></span>
+        <span class="tab-close">✕</span>
       `;
 
       tabEl.addEventListener('click', (e) => {
@@ -111,8 +106,6 @@
       });
 
       tabStrip.insertBefore(tabEl, newTabBtn);
-
-      if (window.lucide) window.lucide.createIcons();
     } catch (error) {
       console.error("Tab render failed:", error);
     }
@@ -167,7 +160,6 @@
 
     let targetUrl = input;
     
-    // Check if it's an internal Static file (bypasses Scramjet)
     if (!/^https?:\/\//i.test(targetUrl) && !targetUrl.startsWith('home/') && targetUrl !== 'newtab.html') {
       if (targetUrl.includes('.') && !targetUrl.includes(' ')) {
         targetUrl = 'https://' + targetUrl;
@@ -176,7 +168,6 @@
       }
     }
 
-    // Apply Scramjet prefix only to external HTTP/HTTPS sites
     let iframeSrc = targetUrl;
     if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
       iframeSrc = SCRAMJET_PREFIX + encodeProxyUrl(targetUrl);
@@ -218,10 +209,10 @@
 
   btnReload.addEventListener('click', () => {
     const tab = tabs.find(t => t.id === activeTabId);
-    if (tab) tab.iframe.src = tab.iframe.src; // Force iframe refresh
+    if (tab) tab.iframe.src = tab.iframe.src;
   });
 
-  btnHome.addEventListener('click', () => navigateCurrentTab('home/index.html'));
+  btnHome.addEventListener('click', () => navigateCurrentTab('newtab.html'));
 
   window.addEventListener('message', (event) => {
     if (!event.data) return;
