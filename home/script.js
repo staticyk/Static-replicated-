@@ -5,7 +5,7 @@
       .catch(err => console.error('Service Worker Error:', err));
   }
 
-  const SCRAMJET_PREFIX = '/~/';
+  const SCRAMJET_PREFIX = '/~/'; 
 
   let tabs = [];
   let activeTabId = null;
@@ -91,7 +91,7 @@
       tabEl.id = 'tab-element-' + tab.id;
       
       tabEl.innerHTML = `
-        <span class="tab-favicon">🌐</span>
+        <span class="tab-favicon">⚡</span>
         <span class="tab-title">${tab.title}</span>
         <span class="tab-close">✕</span>
       `;
