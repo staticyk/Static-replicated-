@@ -2,42 +2,109 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>New Tab</title>
   <style>
-    body {
-      background-color: #080b10;
-      color: #f1f5f9;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
+    :root {
+      --bg-dark: #080b10;
+      --bg-card: #0f141c;
+      --bg-hover: #1e293b;
+      --accent: #2563eb;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #1e293b;
     }
-    h1 {
-      font-size: 48px;
-      margin-bottom: 24px;
-      color: #38bdf8;
-    }
-    .search-box {
-      width: 80%;
-      max-width: 600px;
-      padding: 14px 20px;
-      border-radius: 24px;
-      border: 1px solid #1e293b;
-      background-color: #0f141c;
-      color: #fff;
-      font-size: 16px;
-      outline: none;
-    }
-    .search-box:focus {
-      border-color: #2563eb;
-    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+    body { background-color: var(--bg-dark); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+    .clock { font-size: 3rem; font-weight: 700; margin-bottom: 20px; background: linear-gradient(135deg, #38bdf8, #2563eb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .search-container { width: 100%; max-width: 580px; position: relative; margin-bottom: 30px; }
+    .search-input { width: 100%; padding: 14px 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 28px; color: var(--text-main); font-size: 15px; outline: none; transition: 0.2s; }
+    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(37,99,235,0.3); }
+    .shortcuts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; max-width: 580px; width: 100%; margin-bottom: 30px; }
+    .shortcut { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; text-decoration: none; color: var(--text-main); }
+    .shortcut:hover { background: var(--bg-hover); transform: translateY(-2px); }
+    .shortcut-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; background: rgba(255,255,255,0.05); }
+    .shortcut-title { font-size: 12px; color: var(--text-muted); }
+    .controls { display: flex; gap: 12px; }
+    .btn { padding: 8px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); cursor: pointer; font-size: 13px; transition: 0.2s; }
+    .btn:hover { background: var(--bg-hover); color: var(--text-main); }
   </style>
 </head>
 <body>
-  <h1>Static</h1>
-  <input type="text" class="search-box" placeholder="Search or type a URL..." onkeydown="if(event.key==='Enter') parent.postMessage({type:'NAVIGATE', url: this.value}, '*')" />
+  <div class="clock" id="clock">00:00:00</div>
+  
+  <div class="search-container">
+    <input type="text" class="search-input" id="search-input" placeholder="Search Google or enter URL..." autocomplete="off" />
+  </div>
+
+  <div class="shortcuts">
+    <div class="shortcut" onclick="nav('https://google.com')">
+      <div class="shortcut-icon">G</div>
+      <span class="shortcut-title">Google</span>
+    </div>
+    <div class="shortcut" onclick="nav('https://youtube.com')">
+      <div class="shortcut-icon" style="color:#ef4444;">Y</div>
+      <span class="shortcut-title">YouTube</span>
+    </div>
+    <div class="shortcut" onclick="nav('https://discord.com')">
+      <div class="shortcut-icon" style="color:#6366f1;">D</div>
+      <span class="shortcut-title">Discord</span>
+    </div>
+    <div class="shortcut" onclick="nav('https://github.com')">
+      <div class="shortcut-icon">GH</div>
+      <span class="shortcut-title">GitHub</span>
+    </div>
+    <div class="shortcut" onclick="nav('https://wikipedia.org')">
+      <div class="shortcut-icon">W</div>
+      <span class="shortcut-title">Wikipedia</span>
+    </div>
+    <div class="shortcut" onclick="nav('https://reddit.com')">
+      <div class="shortcut-icon" style="color:#f97316;">R</div>
+      <span class="shortcut-title">Reddit</span>
+    </div>
+    <div class="shortcut" onclick="nav('https://canvas.instructure.com')">
+      <div class="shortcut-icon" style="color:#e11d48;">C</div>
+      <span class="shortcut-title">Canvas</span>
+    </div>
+    <div class="shortcut" onclick="nav('https://classroom.google.com')">
+      <div class="shortcut-icon" style="color:#22c55e;">GC</div>
+      <span class="shortcut-title">Classroom</span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" onclick="setCloak('drive')">Cloak: Drive</button>
+    <button class="btn" onclick="setCloak('classroom')">Cloak: Classroom</button>
+    <button class="btn" onclick="setCloak('reset')">Reset Title</button>
+    <button class="btn" onclick="openAboutBlank()">About:Blank</button>
+  </div>
+
+  <script>
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function nav(url) {
+      window.parent.postMessage({ type: 'NAVIGATE', url: url }, '*');
+    }
+
+    function setCloak(preset) {
+      window.parent.postMessage({ type: 'SET_CLOAK', preset: preset }, '*');
+    }
+
+    function openAboutBlank() {
+      window.parent.postMessage({ type: 'OPEN_ABOUT_BLANK' }, '*');
+    }
+
+    document.getElementById('search-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const val = e.target.value.trim();
+        if (val) nav(val);
+      }
+    });
+  </script>
 </body>
 </html>
