@@ -1,6 +1,7 @@
 {
-  "name": "static-proxy",
+  "name": "static-browser",
   "version": "1.0.0",
+  "description": "Static Proxy Browser",
   "type": "module",
   "main": "server.js",
   "scripts": {
