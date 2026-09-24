@@ -242,29 +242,29 @@
   <main class="viewport" id="viewport-container"></main>
 
   <script>
-    window.scramjetReady = false;
-    window.scramjetCtrl = null;
-    window.scramjetFrame = null;
-
-    async function initScramjet() {
-      try {
-        if ("serviceWorker" in navigator) {
-          await navigator.serviceWorker.register("/sw.js");
-          await navigator.serviceWorker.ready;
-          if (typeof $scramjetController !== "undefined" && typeof EpoxyTransport !== "undefined") {
-            const sw = navigator.serviceWorker.controller || (await navigator.serviceWorker.ready).active;
-            const transport = new self.EpoxyTransport.default({ wisp: "wss://wisp.mercurywork.shop/" });
-            await transport.init();
-            window.scramjetCtrl = new $scramjetController.Controller({ serviceworker: sw, transport, scramjetConfig: $scramjet.defaultConfig });
-            await window.scramjetCtrl.wait();
-            window.scramjetReady = true;
+      window.scramjetReady = false;
+      window.scramjetCtrl = null;
+      window.scramjetFrame = null;
+      
+      async function initScramjet() {
+          try {
+              if ("serviceWorker" in navigator) {
+                  await navigator.serviceWorker.register("/sw.js");
+                  await navigator.serviceWorker.ready;
+                  if (typeof self.EpoxyTransport !== 'undefined' && typeof $scramjetController !== 'undefined') {
+                      const sw = navigator.serviceWorker.controller || (await navigator.serviceWorker.ready).active;
+                      const transport = new self.EpoxyTransport.default({ wisp: "wss://wisp.mercurywork.shop/" });
+                      await transport.init();
+                      window.scramjetCtrl = new $scramjetController.Controller({ serviceworker: sw, transport, scramjetConfig: $scramjet.defaultConfig });
+                      await window.scramjetCtrl.wait();
+                      window.scramjetReady = true;
+                  }
+              }
+          } catch(e) {
+              console.error(e);
           }
-        }
-      } catch(e) {
-        console.error("Scramjet Init Error:", e);
       }
-    }
-    initScramjet();
+      initScramjet();
   </script>
 
   <script src="home/script.js"></script>
