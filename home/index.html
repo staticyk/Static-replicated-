@@ -1,139 +1,865 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Static - Home</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Static Browser</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="style.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#080b10',
+              panel: '#0f141c',
+              card: '#161d2a',
+              hover: '#1e293b',
+              border: '#1e293b',
+              blue: '#2563eb',
+              cyan: '#38bdf8'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --bg-dark: #080b10;
+      --bg-panel: #0f141c;
+      --bg-card: #161d2a;
+      --bg-hover: #1e293b;
+      --accent-blue: #2563eb;
+      --accent-cyan: #38bdf8;
+      --border-color: #1e293b;
+    }
+    body {
+      background-color: var(--bg-dark);
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 20, 28, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    .tab-item {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .tab-item.active {
+      background-color: var(--bg-card);
+      color: #ffffff;
+      border-color: var(--border-color);
+    }
+    .tab-item.active::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #2563eb, #38bdf8);
+      border-radius: 8px 8px 0 0;
+    }
+    .glass-card {
+      background: rgba(22, 29, 42, 0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(30, 41, 59, 0.8);
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.08); }
+    }
+    .pulse-online {
+      animation: pulse-glow 2s infinite ease-in-out;
+    }
+  </style>
 </head>
-<body>
-  <div class="home-wrapper">
-    <header class="home-header">
-      <div class="logo-area">
-        <div class="logo-badge">STATIC</div>
-        <span class="version-tag">v2.4 Pro</span>
+<body class="flex flex-col h-screen select-none overflow-hidden">
+  <header class="bg-brand-panel border-b border-brand-border flex flex-col z-20 shadow-lg">
+    <div class="flex items-center px-2 pt-2 gap-2 overflow-hidden">
+      <div class="flex items-center gap-2 px-2 py-1 mr-1 text-brand-cyan font-bold tracking-wider text-sm shrink-0">
+        <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
+          <i data-lucide="zap" class="w-4 h-4 fill-current"></i>
+        </div>
+        <span class="hidden sm:inline bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent font-extrabold text-base">STATIC</span>
       </div>
-      <nav class="home-nav">
-        <a href="#apps" class="nav-link active">Apps</a>
-        <a href="#masking" class="nav-link">Masking & Stealth</a>
-        <a href="#settings" class="nav-link">Settings</a>
-      </nav>
-    </header>
+      <div id="tab-strip" class="flex items-center gap-1.5 overflow-x-auto flex-1 py-0.5 no-scrollbar scroll-smooth"></div>
+      <button id="btn-add-tab" title="New Tab" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-brand-hover transition shrink-0">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+      </button>
+      <div class="h-4 w-[1px] bg-brand-border mx-1 shrink-0"></div>
+      <div class="flex items-center gap-1 shrink-0">
+        <div class="relative group">
+          <button id="btn-cloak-menu" class="flex items-center gap-1.5 px-2 py-1 text-xs rounded-lg bg-brand-dark/60 text-slate-300 border border-brand-border hover:border-slate-600 transition">
+            <i data-lucide="shield" class="w-3.5 h-3.5 text-brand-cyan"></i>
+            <span id="current-cloak-label" class="hidden md:inline">Cloak</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+          </button>
+          <div class="absolute right-0 top-full mt-1 w-44 bg-brand-card border border-brand-border rounded-xl shadow-2xl p-1.5 hidden group-hover:block z-50">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-2 py-1">Tab Cloak Presets</div>
+            <button onclick="window.StaticBrowser.setTabCloak('reset')" class="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-slate-300 hover:bg-brand-hover hover:text-white rounded-lg transition text-left">
+              <i data-lucide="zap" class="w-3.5 h-3.5 text-brand-cyan"></i> Default Static
+            </button>
+            <button onclick="window.StaticBrowser.setTabCloak('drive')" class="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-slate-300 hover:bg-brand-hover hover:text-white rounded-lg transition text-left">
+              <img src="https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png" class="w-3.5 h-3.5" alt="Drive" /> Google Drive
+            </button>
+            <button onclick="window.StaticBrowser.setTabCloak('classroom')" class="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-slate-300 hover:bg-brand-hover hover:text-white rounded-lg transition text-left">
+              <img src="https://ssl.gstatic.com/classroom/favicon.png" class="w-3.5 h-3.5" alt="Classroom" /> Google Classroom
+            </button>
+            <button onclick="window.StaticBrowser.setTabCloak('canvas')" class="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-slate-300 hover:bg-brand-hover hover:text-white rounded-lg transition text-left">
+              <img src="https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon-e10d657a73.ico" class="w-3.5 h-3.5" alt="Canvas" /> Canvas Dashboard
+            </button>
+          </div>
+        </div>
+        <button id="btn-about-blank" title="Stealth about:blank Mode" class="p-1.5 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-brand-hover transition">
+          <i data-lucide="ghost" class="w-4 h-4"></i>
+        </button>
+        <button id="btn-panic-now" title="Emergency Panic Redirect" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition">
+          <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+        </button>
+        <button id="btn-open-settings" title="Settings" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-brand-hover transition">
+          <i data-lucide="settings" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 px-3 py-2 bg-brand-panel">
+      <div class="flex items-center gap-1">
+        <button id="btn-nav-back" title="Back" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-brand-hover transition">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        </button>
+        <button id="btn-nav-forward" title="Forward" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-brand-hover transition">
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+        <button id="btn-nav-reload" title="Reload" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-brand-hover transition">
+          <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+        </button>
+        <button id="btn-nav-home" title="Home" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-brand-hover transition">
+          <i data-lucide="home" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="flex-1 flex items-center bg-brand-dark/90 border border-brand-border rounded-full px-3 py-1.5 focus-within:border-brand-blue focus-within:ring-2 focus-within:ring-brand-blue/20 transition">
+        <span id="address-protocol-icon" class="text-slate-400 mr-2 shrink-0">
+          <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-400"></i>
+        </span>
+        <input type="text" id="address-input" class="w-full bg-transparent text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none" placeholder="Search Google or enter web address..." spellcheck="false" autocomplete="off" />
+        <button id="btn-clear-address" class="text-slate-500 hover:text-slate-300 p-0.5 ml-1 hidden">
+          <i data-lucide="x" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <select id="select-proxy-mode" class="bg-brand-dark border border-brand-border text-slate-300 text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-brand-cyan cursor-pointer">
+          <option value="scramjet">🚀 Scramjet (/~/)</option>
+          <option value="ultraviolet">⚡ Ultraviolet (/service/)</option>
+          <option value="direct">🌐 Direct (Unproxied)</option>
+        </select>
+        <button id="btn-navigate" class="bg-brand-blue hover:bg-blue-500 text-white p-1.5 rounded-lg transition">
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
 
-    <main class="home-main">
-      <section class="hero-section">
-        <h2>Unrestricted Web Access</h2>
-        <p>Ultra-fast proxy navigation with zero tracking and customizable cloaking.</p>
-      </section>
+  <main id="viewport-container" class="flex-1 relative bg-brand-dark overflow-hidden"></main>
 
-      <section class="grid-section" id="apps">
-        <h3>Popular Apps</h3>
-        <div class="cards-grid">
-          <div class="app-card" onclick="launchUrl('https://google.com')">
-            <div class="card-icon"><i data-lucide="search"></i></div>
-            <div class="card-info">
-              <h4>Google</h4>
-              <p>Search & Web Tools</p>
+  <div id="modal-settings" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-brand-card border border-brand-border rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-brand-border bg-brand-panel">
+        <div class="flex items-center gap-2 text-white font-semibold text-base">
+          <i data-lucide="sliders" class="w-5 h-5 text-brand-cyan"></i>
+          Static Browser Settings
+        </div>
+        <button id="btn-close-settings" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-brand-hover transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-6 overflow-y-auto space-y-6 text-sm text-slate-300">
+        <div class="space-y-3">
+          <h3 class="text-xs uppercase tracking-wider font-bold text-brand-cyan flex items-center gap-2">
+            <i data-lucide="cpu" class="w-4 h-4"></i> Proxy Engine Settings
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-brand-panel/50 p-4 rounded-xl border border-brand-border">
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Default Proxy Engine</label>
+              <select id="modal-proxy-engine" class="w-full bg-brand-dark border border-brand-border rounded-lg px-3 py-2 text-white text-xs outline-none">
+                <option value="scramjet">Scramjet</option>
+                <option value="ultraviolet">Ultraviolet</option>
+                <option value="direct">Direct</option>
+              </select>
             </div>
-          </div>
-          <div class="app-card" onclick="launchUrl('https://youtube.com')">
-            <div class="card-icon"><i data-lucide="youtube"></i></div>
-            <div class="card-info">
-              <h4>YouTube</h4>
-              <p>Video Streaming</p>
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Scramjet Prefix Path</label>
+              <input type="text" id="modal-scramjet-prefix" value="/~/" class="w-full bg-brand-dark border border-brand-border rounded-lg px-3 py-2 text-white text-xs outline-none" />
             </div>
-          </div>
-          <div class="app-card" onclick="launchUrl('https://discord.com')">
-            <div class="card-icon"><i data-lucide="message-square"></i></div>
-            <div class="card-info">
-              <h4>Discord</h4>
-              <p>Community & Chat</p>
-            </div>
-          </div>
-          <div class="app-card" onclick="launchUrl('https://reddit.com')">
-            <div class="card-icon"><i data-lucide="globe"></i></div>
-            <div class="card-info">
-              <h4>Reddit</h4>
-              <p>Social Discussions</p>
-            </div>
-          </div>
-          <div class="app-card" onclick="launchUrl('https://wikipedia.org')">
-            <div class="card-icon"><i data-lucide="book-open"></i></div>
-            <div class="card-info">
-              <h4>Wikipedia</h4>
-              <p>Free Encyclopedia</p>
-            </div>
-          </div>
-          <div class="app-card" onclick="launchUrl('https://twitch.tv')">
-            <div class="card-icon"><i data-lucide="gamepad-2"></i></div>
-            <div class="card-info">
-              <h4>Twitch</h4>
-              <p>Live Streaming</p>
+            <div class="md:col-span-2">
+              <label class="block text-xs font-medium text-slate-400 mb-1">Wisp WebSocket Server</label>
+              <input type="text" id="modal-wisp-url" value="wss://wisp.mercurywork.shop/" class="w-full bg-brand-dark border border-brand-border rounded-lg px-3 py-2 text-white text-xs font-mono outline-none" />
             </div>
           </div>
         </div>
-      </section>
-
-      <section class="settings-section" id="masking">
-        <h3>Tab Masking & Cloaking</h3>
-        <div class="settings-card">
-          <div class="setting-row">
-            <label>About:Blank Launcher</label>
-            <p class="setting-desc">Opens Static inside a clean about:blank window to hide browser history.</p>
-            <button class="action-btn" onclick="triggerAboutBlank()">Open in About:Blank</button>
+        <div class="space-y-3">
+          <h3 class="text-xs uppercase tracking-wider font-bold text-brand-cyan flex items-center gap-2">
+            <i data-lucide="search" class="w-4 h-4"></i> Search Engine
+          </h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <label class="flex items-center gap-2 p-2.5 bg-brand-panel border border-brand-border rounded-xl cursor-pointer">
+              <input type="radio" name="search-engine" value="google" checked class="text-brand-blue" />
+              <span class="text-xs text-white">Google</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 bg-brand-panel border border-brand-border rounded-xl cursor-pointer">
+              <input type="radio" name="search-engine" value="duckduckgo" class="text-brand-blue" />
+              <span class="text-xs text-white">DuckDuckGo</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 bg-brand-panel border border-brand-border rounded-xl cursor-pointer">
+              <input type="radio" name="search-engine" value="brave" class="text-brand-blue" />
+              <span class="text-xs text-white">Brave</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 bg-brand-panel border border-brand-border rounded-xl cursor-pointer">
+              <input type="radio" name="search-engine" value="bing" class="text-brand-blue" />
+              <span class="text-xs text-white">Bing</span>
+            </label>
           </div>
-          
-          <div class="setting-row">
-            <label>Tab Preset Masking</label>
-            <p class="setting-desc">Change tab title and favicon to look like standard school apps.</p>
-            <div class="preset-buttons">
-              <button class="preset-btn" onclick="applyPreset('drive')">Google Drive</button>
-              <button class="preset-btn" onclick="applyPreset('classroom')">Google Classroom</button>
-              <button class="preset-btn" onclick="applyPreset('canvas')">Canvas LMS</button>
-              <button class="preset-btn" onclick="applyPreset('reset')">Reset Mask</button>
+        </div>
+        <div class="space-y-3">
+          <h3 class="text-xs uppercase tracking-wider font-bold text-brand-cyan flex items-center gap-2">
+            <i data-lucide="shield-alert" class="w-4 h-4"></i> Emergency Panic Shortcut
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-brand-panel/50 p-4 rounded-xl border border-brand-border">
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Panic Hotkey</label>
+              <select id="modal-panic-key" class="w-full bg-brand-dark border border-brand-border rounded-lg px-3 py-2 text-white text-xs outline-none">
+                <option value="`">Backtick (`)</option>
+                <option value="Escape">Escape Key</option>
+                <option value="F2">F2 Key</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Panic Target URL</label>
+              <input type="text" id="modal-panic-url" value="https://classroom.google.com" class="w-full bg-brand-dark border border-brand-border rounded-lg px-3 py-2 text-white text-xs outline-none" />
             </div>
           </div>
         </div>
-      </section>
-
-      <section class="settings-section" id="settings">
-        <h3>Proxy Configuration</h3>
-        <div class="settings-card">
-          <div class="setting-row">
-            <label for="search-engine">Default Search Engine</label>
-            <select id="search-engine" class="select-input">
-              <option value="google">Google</option>
-              <option value="duckduckgo">DuckDuckGo</option>
-              <option value="brave">Brave</option>
-              <option value="bing">Bing</option>
-            </select>
+        <div class="bg-brand-panel/80 p-4 rounded-xl border border-brand-border flex items-center justify-between">
+          <div>
+            <div class="text-xs font-semibold text-white">Service Worker Status</div>
+            <div id="sw-status-label" class="text-xs text-slate-400">Initializing Service Worker...</div>
           </div>
-          <div class="setting-row">
-            <label for="panic-key">Panic Key Redirect (Press key to instantly exit)</label>
-            <input type="text" id="panic-key" class="text-input" value="https://classroom.google.com" placeholder="Redirect URL">
-          </div>
+          <button id="btn-re-register-sw" class="px-3 py-1.5 text-xs bg-brand-hover text-slate-200 rounded-lg border border-brand-border">
+            Re-Register SW
+          </button>
         </div>
-      </section>
-    </main>
+      </div>
+      <div class="px-6 py-4 bg-brand-panel border-t border-brand-border flex items-center justify-between">
+        <button id="btn-reset-data" class="text-xs text-rose-400 hover:text-rose-300 transition">Reset Local Data</button>
+        <button id="btn-save-settings" class="px-5 py-2 text-xs font-semibold bg-brand-blue hover:bg-blue-500 text-white rounded-xl shadow-lg transition">
+          Save Settings
+        </button>
+      </div>
+    </div>
   </div>
 
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      lucide.createIcons();
-    });
+    (function() {
+      const DEFAULT_CONFIG = {
+        proxyEngine: 'scramjet',
+        scramjetPrefix: '/~/',
+        ultravioletPrefix: '/service/',
+        wispUrl: 'wss://wisp.mercurywork.shop/',
+        searchEngine: 'google',
+        panicKey: '`',
+        panicUrl: 'https://classroom.google.com'
+      };
 
-    function launchUrl(url) {
-      window.parent.postMessage({ type: 'NAVIGATE', url: url }, '*');
-    }
+      const SEARCH_PROVIDERS = {
+        google: 'https://www.google.com/search?q=',
+        duckduckgo: 'https://duckduckgo.com/?q=',
+        brave: 'https://search.brave.com/search?q=',
+        bing: 'https://www.bing.com/search?q='
+      };
 
-    function triggerAboutBlank() {
-      window.parent.postMessage({ type: 'OPEN_ABOUT_BLANK' }, '*');
-    }
+      const CLOAK_PRESETS = {
+        reset: { title: 'Static Browser', icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>" },
+        drive: { title: 'Google Drive', icon: 'https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png' },
+        classroom: { title: 'Google Classroom', icon: 'https://ssl.gstatic.com/classroom/favicon.png' },
+        canvas: { title: 'Dashboard', icon: 'https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon-e10d657a73.ico' }
+      };
 
-    function applyPreset(preset) {
-      window.parent.postMessage({ type: 'SET_CLOAK', preset: preset }, '*');
-    }
+      let appConfig = { ...DEFAULT_CONFIG };
+      let tabs = [];
+      let activeTabId = null;
+
+      const tabStrip = document.getElementById('tab-strip');
+      const btnAddTab = document.getElementById('btn-add-tab');
+      const addressInput = document.getElementById('address-input');
+      const addressProtocolIcon = document.getElementById('address-protocol-icon');
+      const btnClearAddress = document.getElementById('btn-clear-address');
+      const selectProxyMode = document.getElementById('select-proxy-mode');
+      const viewportContainer = document.getElementById('viewport-container');
+
+      const btnNavBack = document.getElementById('btn-nav-back');
+      const btnNavForward = document.getElementById('btn-nav-forward');
+      const btnNavReload = document.getElementById('btn-nav-reload');
+      const btnNavHome = document.getElementById('btn-nav-home');
+      const btnNavigate = document.getElementById('btn-navigate');
+
+      const modalSettings = document.getElementById('modal-settings');
+      const btnOpenSettings = document.getElementById('btn-open-settings');
+      const btnCloseSettings = document.getElementById('btn-close-settings');
+      const btnSaveSettings = document.getElementById('btn-save-settings');
+      const btnResetData = document.getElementById('btn-reset-data');
+
+      const btnAboutBlank = document.getElementById('btn-about-blank');
+      const btnPanicNow = document.getElementById('btn-panic-now');
+      const toastContainer = document.getElementById('toast-container');
+
+      function showToast(message, type = 'info', duration = 3000) {
+        const toast = document.createElement('div');
+        toast.className = `px-4 py-2.5 rounded-xl text-xs font-medium shadow-xl border flex items-center gap-2 pointer-events-auto transition-all ${
+          type === 'error' ? 'bg-rose-950/90 text-rose-200 border-rose-800' :
+          type === 'success' ? 'bg-emerald-950/90 text-emerald-200 border-emerald-800' :
+          'bg-brand-card/90 text-slate-200 border-brand-border'
+        }`;
+        const iconName = type === 'error' ? 'alert-circle' : type === 'success' ? 'check-circle' : 'info';
+        toast.innerHTML = `<i data-lucide="${iconName}" class="w-4 h-4 shrink-0"></i> <span>${message}</span>`;
+        toastContainer.appendChild(toast);
+        if (window.lucide) window.lucide.createIcons();
+
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          setTimeout(() => toast.remove(), 300);
+        }, duration);
+      }
+
+      function encodeProxyUrl(url, engine) {
+        if (!url) return '';
+        if (engine === 'direct') return url;
+
+        if (engine === 'scramjet' && window.__scramjet && typeof window.__scramjet.encodeUrl === 'function') {
+          return window.__scramjet.encodeUrl(url);
+        }
+
+        const encoded = encodeURIComponent(
+          url.split('').map((char, ind) => (ind % 2 ? String.fromCharCode(char.charCodeAt(0) ^ 2) : char)).join('')
+        );
+
+        const prefix = engine === 'ultraviolet' ? appConfig.ultravioletPrefix : appConfig.scramjetPrefix;
+        return prefix + encoded;
+      }
+
+      function setTabCloak(presetKey) {
+        const cloak = CLOAK_PRESETS[presetKey] || CLOAK_PRESETS.reset;
+        document.title = cloak.title;
+
+        let favicon = document.getElementById('app-favicon');
+        if (!favicon) {
+          favicon = document.createElement('link');
+          favicon.id = 'app-favicon';
+          favicon.rel = 'icon';
+          document.head.appendChild(favicon);
+        }
+        favicon.href = cloak.icon;
+
+        localStorage.setItem('static_cloak_preset', presetKey);
+        const label = document.getElementById('current-cloak-label');
+        if (label) label.textContent = presetKey === 'reset' ? 'Cloak' : cloak.title;
+
+        showToast(`Tab cloak set to: ${cloak.title}`, 'info');
+      }
+
+      function restoreTabCloak() {
+        const savedPreset = localStorage.getItem('static_cloak_preset') || 'reset';
+        setTabCloak(savedPreset);
+      }
+
+      function launchAboutBlank() {
+        try {
+          const win = window.open('about:blank', '_blank');
+          if (!win) {
+            showToast('Popup blocked! Please allow popups.', 'error');
+            return;
+          }
+          const doc = win.document;
+          doc.open();
+          doc.write(`<!DOCTYPE html><html><head><title>Google Drive</title><style>html,body,iframe{margin:0;padding:0;width:100%;height:100%;border:none;overflow:hidden;}</style></head><body><iframe src="${window.location.href}"></iframe></body></html>`);
+          doc.close();
+          window.location.replace('https://google.com');
+        } catch(e) {
+          showToast('Failed to open stealth mode window', 'error');
+        }
+      }
+
+      function executePanic() {
+        window.location.replace(appConfig.panicUrl || 'https://classroom.google.com');
+      }
+
+      function createTab(initialUrl = 'internal:newtab', title = 'New Tab') {
+        const tabId = 'tab-' + Math.random().toString(36).substring(2, 9);
+        const isInternal = initialUrl.startsWith('internal:');
+
+        const viewport = document.createElement('div');
+        viewport.id = 'viewport-' + tabId;
+        viewport.className = 'w-full h-full relative hidden';
+
+        let iframe = null;
+        if (!isInternal) {
+          iframe = document.createElement('iframe');
+          iframe.className = 'w-full h-full border-none bg-brand-dark';
+          iframe.src = formatProxyUrl(initialUrl);
+          viewport.appendChild(iframe);
+        } else {
+          viewport.appendChild(renderInternalNewTab(tabId));
+        }
+
+        viewportContainer.appendChild(viewport);
+
+        const tabObj = {
+          id: tabId,
+          title: title,
+          url: initialUrl,
+          isInternal: isInternal,
+          viewport: viewport,
+          iframe: iframe
+        };
+
+        tabs.push(tabObj);
+        renderTabStripItem(tabObj);
+        switchTab(tabId);
+        return tabObj;
+      }
+
+      function renderTabStripItem(tab) {
+        const tabEl = document.createElement('div');
+        tabEl.id = 'tab-item-' + tab.id;
+        tabEl.className = 'tab-item flex items-center gap-2 px-3 py-1.5 bg-brand-panel/60 text-slate-400 hover:text-slate-200 border border-transparent rounded-t-xl text-xs font-medium cursor-pointer max-w-[180px] min-w-[110px] relative group shrink-0';
+        
+        tabEl.innerHTML = `
+          <span class="tab-favicon text-brand-cyan shrink-0"><i data-lucide="${tab.isInternal ? 'compass' : 'globe'}" class="w-3.5 h-3.5"></i></span>
+          <span class="tab-title truncate flex-1">${tab.title}</span>
+          <button class="tab-close p-0.5 rounded-md hover:bg-slate-700/60 hover:text-white opacity-60 group-hover:opacity-100 transition shrink-0">
+            <i data-lucide="x" class="w-3 h-3"></i>
+          </button>
+        `;
+
+        tabEl.addEventListener('click', (e) => {
+          if (!e.target.closest('.tab-close')) switchTab(tab.id);
+        });
+
+        tabEl.querySelector('.tab-close').addEventListener('click', (e) => {
+          e.stopPropagation();
+          closeTab(tab.id);
+        });
+
+        tabStrip.appendChild(tabEl);
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      function switchTab(id) {
+        tabs.forEach(t => {
+          const tabEl = document.getElementById('tab-item-' + t.id);
+          if (t.id === id) {
+            activeTabId = id;
+            t.viewport.classList.remove('hidden');
+            if (tabEl) tabEl.classList.add('active');
+            updateAddressBarUI(t.url);
+          } else {
+            t.viewport.classList.add('hidden');
+            if (tabEl) tabEl.classList.remove('active');
+          }
+        });
+      }
+
+      function closeTab(id) {
+        const index = tabs.findIndex(t => t.id === id);
+        if (index === -1) return;
+
+        const tabToClose = tabs[index];
+        if (tabToClose.viewport && tabToClose.viewport.parentNode) {
+          tabToClose.viewport.parentNode.removeChild(tabToClose.viewport);
+        }
+
+        const tabEl = document.getElementById('tab-item-' + id);
+        if (tabEl && tabEl.parentNode) tabEl.parentNode.removeChild(tabEl);
+
+        tabs.splice(index, 1);
+
+        if (activeTabId === id) {
+          if (tabs.length > 0) {
+            switchTab(tabs[Math.max(0, index - 1)].id);
+          } else {
+            createTab();
+          }
+        }
+      }
+
+      function formatProxyUrl(input) {
+        if (!input || input === 'internal:newtab') return 'internal:newtab';
+
+        let target = input.trim();
+        if (!/^https?:\/\//i.test(target)) {
+          if (target.includes('.') && !target.includes(' ')) {
+            target = 'https://' + target;
+          } else {
+            const provider = SEARCH_PROVIDERS[appConfig.searchEngine] || SEARCH_PROVIDERS.google;
+            target = provider + encodeURIComponent(target);
+          }
+        }
+
+        const mode = selectProxyMode.value || appConfig.proxyEngine;
+        if (mode === 'direct') return target;
+
+        return encodeProxyUrl(target, mode);
+      }
+
+      function navigateActiveTab(input) {
+        if (!activeTabId) return;
+        const tab = tabs.find(t => t.id === activeTabId);
+        if (!tab) return;
+
+        if (!input || input === 'internal:newtab') {
+          tab.url = 'internal:newtab';
+          tab.isInternal = true;
+          tab.title = 'New Tab';
+          tab.viewport.innerHTML = '';
+          tab.viewport.appendChild(renderInternalNewTab(tab.id));
+          updateTabHeader(tab);
+          updateAddressBarUI('internal:newtab');
+          return;
+        }
+
+        let targetUrl = input.trim();
+        if (!/^https?:\/\//i.test(targetUrl)) {
+          if (targetUrl.includes('.') && !targetUrl.includes(' ')) {
+            targetUrl = 'https://' + targetUrl;
+          } else {
+            const provider = SEARCH_PROVIDERS[appConfig.searchEngine] || SEARCH_PROVIDERS.google;
+            targetUrl = provider + encodeURIComponent(targetUrl);
+          }
+        }
+
+        const mode = selectProxyMode.value || appConfig.proxyEngine;
+        const finalProxyUrl = mode === 'direct' ? targetUrl : encodeProxyUrl(targetUrl, mode);
+
+        tab.url = targetUrl;
+        tab.isInternal = false;
+        tab.title = targetUrl.replace(/^https?:\/\//, '').split('/')[0] || targetUrl;
+
+        tab.viewport.innerHTML = '';
+        const iframe = document.createElement('iframe');
+        iframe.className = 'w-full h-full border-none bg-brand-dark';
+        iframe.src = finalProxyUrl;
+        tab.iframe = iframe;
+        tab.viewport.appendChild(iframe);
+
+        updateTabHeader(tab);
+        updateAddressBarUI(targetUrl);
+      }
+
+      function updateTabHeader(tab) {
+        const tabEl = document.getElementById('tab-item-' + tab.id);
+        if (tabEl) {
+          const titleEl = tabEl.querySelector('.tab-title');
+          if (titleEl) titleEl.textContent = tab.title;
+        }
+      }
+
+      function updateAddressBarUI(url) {
+        if (url === 'internal:newtab') {
+          addressInput.value = '';
+          btnClearAddress.classList.add('hidden');
+          addressProtocolIcon.innerHTML = `<i data-lucide="compass" class="w-3.5 h-3.5 text-brand-cyan"></i>`;
+        } else {
+          addressInput.value = url;
+          btnClearAddress.classList.remove('hidden');
+          addressProtocolIcon.innerHTML = `<i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-400"></i>`;
+        }
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      function renderInternalNewTab(tabId) {
+        const container = document.createElement('div');
+        container.className = 'w-full h-full overflow-y-auto bg-gradient-to-b from-brand-dark via-brand-panel to-brand-dark p-6 sm:p-12 flex flex-col items-center justify-between text-slate-100';
+
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const hours = now.getHours();
+        const greeting = hours < 12 ? 'Good morning' : hours < 18 ? 'Good afternoon' : 'Good evening';
+
+        container.innerHTML = `
+          <div class="text-center space-y-2 mt-4 sm:mt-8">
+            <div id="ntp-clock-${tabId}" class="text-5xl sm:text-7xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent font-mono">
+              ${timeStr}
+            </div>
+            <div class="text-sm sm:text-base text-slate-400 font-medium">
+              ${greeting}, Explorer. Ready to browse securely.
+            </div>
+          </div>
+
+          <div class="w-full max-w-2xl my-8 space-y-4">
+            <div class="glass-card p-2 rounded-2xl shadow-2xl flex items-center gap-2 focus-within:ring-2 focus-within:ring-brand-cyan/50 transition">
+              <i data-lucide="search" class="w-5 h-5 text-brand-cyan ml-3"></i>
+              <input 
+                type="text" 
+                class="ntp-search-input w-full bg-transparent text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none px-2 py-2"
+                placeholder="Search the web or enter target URL..."
+              />
+              <button class="ntp-search-go bg-brand-blue hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition shadow-lg">
+                Go
+              </button>
+            </div>
+
+            <div class="flex items-center justify-center gap-2 text-xs text-slate-400">
+              <span class="text-slate-500">Engine:</span>
+              <span class="font-semibold text-brand-cyan uppercase tracking-wider">${appConfig.searchEngine}</span>
+              <span class="text-slate-600">•</span>
+              <span class="text-slate-500">Proxy:</span>
+              <span class="font-semibold text-emerald-400 uppercase tracking-wider">${selectProxyMode.value}</span>
+            </div>
+          </div>
+
+          <div class="w-full max-w-3xl space-y-3">
+            <div class="text-xs uppercase tracking-wider font-semibold text-slate-500 px-1">Quick Shortcuts</div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <button data-url="https://www.google.com" class="ntp-shortcut glass-card p-3.5 rounded-xl flex items-center gap-3 hover:bg-brand-hover hover:border-slate-500 transition group text-left">
+                <div class="p-2 rounded-lg bg-blue-500/10 text-blue-400 group-hover:scale-110 transition"><i data-lucide="search" class="w-4 h-4"></i></div>
+                <div><div class="text-xs font-semibold text-white">Google</div><div class="text-[10px] text-slate-400">Search Engine</div></div>
+              </button>
+              <button data-url="https://youtube.com" class="ntp-shortcut glass-card p-3.5 rounded-xl flex items-center gap-3 hover:bg-brand-hover hover:border-slate-500 transition group text-left">
+                <div class="p-2 rounded-lg bg-rose-500/10 text-rose-400 group-hover:scale-110 transition"><i data-lucide="youtube" class="w-4 h-4"></i></div>
+                <div><div class="text-xs font-semibold text-white">YouTube</div><div class="text-[10px] text-slate-400">Video Platform</div></div>
+              </button>
+              <button data-url="https://discord.com" class="ntp-shortcut glass-card p-3.5 rounded-xl flex items-center gap-3 hover:bg-brand-hover hover:border-slate-500 transition group text-left">
+                <div class="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:scale-110 transition"><i data-lucide="message-square" class="w-4 h-4"></i></div>
+                <div><div class="text-xs font-semibold text-white">Discord</div><div class="text-[10px] text-slate-400">Communities</div></div>
+              </button>
+              <button data-url="https://github.com" class="ntp-shortcut glass-card p-3.5 rounded-xl flex items-center gap-3 hover:bg-brand-hover hover:border-slate-500 transition group text-left">
+                <div class="p-2 rounded-lg bg-slate-500/10 text-slate-300 group-hover:scale-110 transition"><i data-lucide="github" class="w-4 h-4"></i></div>
+                <div><div class="text-xs font-semibold text-white">GitHub</div><div class="text-[10px] text-slate-400">Code Hosting</div></div>
+              </button>
+              <button data-url="https://wikipedia.org" class="ntp-shortcut glass-card p-3.5 rounded-xl flex items-center gap-3 hover:bg-brand-hover hover:border-slate-500 transition group text-left">
+                <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:scale-110 transition"><i data-lucide="book-open" class="w-4 h-4"></i></div>
+                <div><div class="text-xs font-semibold text-white">Wikipedia</div><div class="text-[10px] text-slate-400">Encyclopedia</div></div>
+              </button>
+              <button data-url="https://reddit.com" class="ntp-shortcut glass-card p-3.5 rounded-xl flex items-center gap-3 hover:bg-brand-hover hover:border-slate-500 transition group text-left">
+                <div class="p-2 rounded-lg bg-orange-500/10 text-orange-400 group-hover:scale-110 transition"><i data-lucide="share-2" class="w-4 h-4"></i></div>
+                <div><div class="text-xs font-semibold text-white">Reddit</div><div class="text-[10px] text-slate-400">Forums</div></div>
+              </button>
+              <button data-url="https://instructure.com" class="ntp-shortcut glass-card p-3.5 rounded-xl flex items-center gap-3 hover:bg-brand-hover hover:border-slate-500 transition group text-left">
+                <div class="p-2 rounded-lg bg-cyan-500/10 text-cyan-400 group-hover:scale-110 transition"><i data-lucide="graduation-cap" class="w-4 h-4"></i></div>
+                <div><div class="text-xs font-semibold text-white">Canvas</div><div class="text-[10px] text-slate-400">Dashboard</div></div>
+              </button>
+              <button data-url="https://classroom.google.com" class="ntp-shortcut glass-card p-3.5 rounded-xl flex items-center gap-3 hover:bg-brand-hover hover:border-slate-500 transition group text-left">
+                <div class="p-2 rounded-lg bg-amber-500/10 text-amber-400 group-hover:scale-110 transition"><i data-lucide="layout" class="w-4 h-4"></i></div>
+                <div><div class="text-xs font-semibold text-white">Classroom</div><div class="text-[10px] text-slate-400">Education</div></div>
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-8 text-xs text-slate-500 flex items-center gap-3">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-online"></span>
+              <span>Proxy Engine Ready</span>
+            </div>
+            <span>•</span>
+            <span>Press <kbd class="px-1.5 py-0.5 bg-brand-card rounded text-[10px] text-slate-300 font-mono border border-brand-border">${appConfig.panicKey}</kbd> for Panic</span>
+          </div>
+        `;
+
+        const clockEl = container.querySelector(`#ntp-clock-${tabId}`);
+        const clockInterval = setInterval(() => {
+          if (!document.contains(clockEl)) {
+            clearInterval(clockInterval);
+            return;
+          }
+          clockEl.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }, 1000);
+
+        const searchInput = container.querySelector('.ntp-search-input');
+        const searchGo = container.querySelector('.ntp-search-go');
+
+        const doSearch = () => {
+          const val = searchInput.value.trim();
+          if (val) navigateActiveTab(val);
+        };
+
+        searchInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') doSearch();
+        });
+        searchGo.addEventListener('click', doSearch);
+
+        container.querySelectorAll('.ntp-shortcut').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const url = btn.getAttribute('data-url');
+            if (url) navigateActiveTab(url);
+          });
+        });
+
+        if (window.lucide) window.lucide.createIcons();
+        return container;
+      }
+
+      btnAddTab.addEventListener('click', () => createTab());
+
+      addressInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const val = addressInput.value.trim();
+          navigateActiveTab(val || 'internal:newtab');
+        }
+      });
+
+      btnClearAddress.addEventListener('click', () => {
+        addressInput.value = '';
+        addressInput.focus();
+      });
+
+      btnNavigate.addEventListener('click', () => {
+        const val = addressInput.value.trim();
+        navigateActiveTab(val || 'internal:newtab');
+      });
+
+      btnNavBack.addEventListener('click', () => {
+        const tab = tabs.find(t => t.id === activeTabId);
+        if (tab && tab.iframe && tab.iframe.contentWindow) {
+          try { tab.iframe.contentWindow.history.back(); } catch(e){}
+        }
+      });
+
+      btnNavForward.addEventListener('click', () => {
+        const tab = tabs.find(t => t.id === activeTabId);
+        if (tab && tab.iframe && tab.iframe.contentWindow) {
+          try { tab.iframe.contentWindow.history.forward(); } catch(e){}
+        }
+      });
+
+      btnNavReload.addEventListener('click', () => {
+        const tab = tabs.find(t => t.id === activeTabId);
+        if (tab) {
+          if (tab.isInternal) {
+            navigateActiveTab('internal:newtab');
+          } else if (tab.iframe) {
+            tab.iframe.src = tab.iframe.src;
+          }
+        }
+      });
+
+      btnNavHome.addEventListener('click', () => navigateActiveTab('internal:newtab'));
+
+      btnAboutBlank.addEventListener('click', launchAboutBlank);
+      btnPanicNow.addEventListener('click', executePanic);
+
+      btnOpenSettings.addEventListener('click', () => {
+        document.getElementById('modal-proxy-engine').value = appConfig.proxyEngine;
+        document.getElementById('modal-scramjet-prefix').value = appConfig.scramjetPrefix;
+        document.getElementById('modal-wisp-url').value = appConfig.wispUrl;
+        document.getElementById('modal-panic-key').value = appConfig.panicKey;
+        document.getElementById('modal-panic-url').value = appConfig.panicUrl;
+
+        const radios = document.getElementsByName('search-engine');
+        for (let r of radios) {
+          if (r.value === appConfig.searchEngine) r.checked = true;
+        }
+
+        modalSettings.classList.remove('hidden');
+      });
+
+      btnCloseSettings.addEventListener('click', () => modalSettings.classList.add('hidden'));
+
+      btnSaveSettings.addEventListener('click', () => {
+        appConfig.proxyEngine = document.getElementById('modal-proxy-engine').value;
+        appConfig.scramjetPrefix = document.getElementById('modal-scramjet-prefix').value;
+        appConfig.wispUrl = document.getElementById('modal-wisp-url').value;
+        appConfig.panicKey = document.getElementById('modal-panic-key').value;
+        appConfig.panicUrl = document.getElementById('modal-panic-url').value;
+
+        const radios = document.getElementsByName('search-engine');
+        for (let r of radios) {
+          if (r.checked) appConfig.searchEngine = r.value;
+        }
+
+        selectProxyMode.value = appConfig.proxyEngine;
+        localStorage.setItem('static_browser_config', JSON.stringify(appConfig));
+        showToast('Settings saved successfully', 'success');
+        modalSettings.classList.add('hidden');
+      });
+
+      btnResetData.addEventListener('click', () => {
+        localStorage.clear();
+        appConfig = { ...DEFAULT_CONFIG };
+        showToast('All data reset to defaults', 'info');
+        setTimeout(() => location.reload(), 800);
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === appConfig.panicKey || (e.key === 'Escape' && appConfig.panicKey === 'Escape')) {
+          executePanic();
+        }
+        if (e.ctrlKey && e.key === 't') {
+          e.preventDefault();
+          createTab();
+        }
+        if (e.ctrlKey && e.key === 'w') {
+          e.preventDefault();
+          if (activeTabId) closeTab(activeTabId);
+        }
+      });
+
+      window.addEventListener('message', (event) => {
+        if (!event.data) return;
+        if (event.data.type === 'NAVIGATE') navigateActiveTab(event.data.url);
+        else if (event.data.type === 'SET_CLOAK') setTabCloak(event.data.preset);
+        else if (event.data.type === 'OPEN_ABOUT_BLANK') launchAboutBlank();
+      });
+
+      async function initServiceWorker() {
+        const swStatusLabel = document.getElementById('sw-status-label');
+        if ('serviceWorker' in navigator) {
+          try {
+            await navigator.serviceWorker.register('/sw.js');
+            if (swStatusLabel) swStatusLabel.textContent = 'Active & Registered';
+          } catch(err) {
+            if (swStatusLabel) swStatusLabel.textContent = 'Standalone Mode (Unregistered SW)';
+          }
+        }
+      }
+
+      document.getElementById('btn-re-register-sw')?.addEventListener('click', () => {
+        initServiceWorker();
+        showToast('Re-registering Service Worker...', 'info');
+      });
+
+      window.StaticBrowser = {
+        createTab,
+        switchTab,
+        closeTab,
+        navigateActiveTab,
+        setTabCloak,
+        executePanic,
+        launchAboutBlank
+      };
+
+      try {
+        const saved = localStorage.getItem('static_browser_config');
+        if (saved) appConfig = { ...DEFAULT_CONFIG, ...JSON.parse(saved) };
+      } catch(e) {}
+
+      selectProxyMode.value = appConfig.proxyEngine;
+      restoreTabCloak();
+      initServiceWorker();
+      createTab('internal:newtab', 'New Tab');
+      if (window.lucide) window.lucide.createIcons();
+    })();
   </script>
 </body>
 </html>
