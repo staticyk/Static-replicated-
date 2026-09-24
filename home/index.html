@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Static - Home</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="home-wrapper">
+    <header class="home-header">
+      <div class="logo-area">
+        <div class="logo-badge">STATIC</div>
+        <span class="version-tag">v2.4 Pro</span>
+      </div>
+      <nav class="home-nav">
+        <a href="#apps" class="nav-link active">Apps</a>
+        <a href="#masking" class="nav-link">Masking & Stealth</a>
+        <a href="#settings" class="nav-link">Settings</a>
+      </nav>
+    </header>
+
+    <main class="home-main">
+      <section class="hero-section">
+        <h2>Unrestricted Web Access</h2>
+        <p>Ultra-fast proxy navigation with zero tracking and customizable cloaking.</p>
+      </section>
+
+      <section class="grid-section" id="apps">
+        <h3>Popular Apps</h3>
+        <div class="cards-grid">
+          <div class="app-card" onclick="launchUrl('https://google.com')">
+            <div class="card-icon"><i data-lucide="search"></i></div>
+            <div class="card-info">
+              <h4>Google</h4>
+              <p>Search & Web Tools</p>
+            </div>
+          </div>
+          <div class="app-card" onclick="launchUrl('https://youtube.com')">
+            <div class="card-icon"><i data-lucide="youtube"></i></div>
+            <div class="card-info">
+              <h4>YouTube</h4>
+              <p>Video Streaming</p>
+            </div>
+          </div>
+          <div class="app-card" onclick="launchUrl('https://discord.com')">
+            <div class="card-icon"><i data-lucide="message-square"></i></div>
+            <div class="card-info">
+              <h4>Discord</h4>
+              <p>Community & Chat</p>
+            </div>
+          </div>
+          <div class="app-card" onclick="launchUrl('https://reddit.com')">
+            <div class="card-icon"><i data-lucide="globe"></i></div>
+            <div class="card-info">
+              <h4>Reddit</h4>
+              <p>Social Discussions</p>
+            </div>
+          </div>
+          <div class="app-card" onclick="launchUrl('https://wikipedia.org')">
+            <div class="card-icon"><i data-lucide="book-open"></i></div>
+            <div class="card-info">
+              <h4>Wikipedia</h4>
+              <p>Free Encyclopedia</p>
+            </div>
+          </div>
+          <div class="app-card" onclick="launchUrl('https://twitch.tv')">
+            <div class="card-icon"><i data-lucide="gamepad-2"></i></div>
+            <div class="card-info">
+              <h4>Twitch</h4>
+              <p>Live Streaming</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-section" id="masking">
+        <h3>Tab Masking & Cloaking</h3>
+        <div class="settings-card">
+          <div class="setting-row">
+            <label>About:Blank Launcher</label>
+            <p class="setting-desc">Opens Static inside a clean about:blank window to hide browser history.</p>
+            <button class="action-btn" onclick="triggerAboutBlank()">Open in About:Blank</button>
+          </div>
+          
+          <div class="setting-row">
+            <label>Tab Preset Masking</label>
+            <p class="setting-desc">Change tab title and favicon to look like standard school apps.</p>
+            <div class="preset-buttons">
+              <button class="preset-btn" onclick="applyPreset('drive')">Google Drive</button>
+              <button class="preset-btn" onclick="applyPreset('classroom')">Google Classroom</button>
+              <button class="preset-btn" onclick="applyPreset('canvas')">Canvas LMS</button>
+              <button class="preset-btn" onclick="applyPreset('reset')">Reset Mask</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-section" id="settings">
+        <h3>Proxy Configuration</h3>
+        <div class="settings-card">
+          <div class="setting-row">
+            <label for="search-engine">Default Search Engine</label>
+            <select id="search-engine" class="select-input">
+              <option value="google">Google</option>
+              <option value="duckduckgo">DuckDuckGo</option>
+              <option value="brave">Brave</option>
+              <option value="bing">Bing</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <label for="panic-key">Panic Key Redirect (Press key to instantly exit)</label>
+            <input type="text" id="panic-key" class="text-input" value="https://classroom.google.com" placeholder="Redirect URL">
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+    });
+
+    function launchUrl(url) {
+      window.parent.postMessage({ type: 'NAVIGATE', url: url }, '*');
+    }
+
+    function triggerAboutBlank() {
+      window.parent.postMessage({ type: 'OPEN_ABOUT_BLANK' }, '*');
+    }
+
+    function applyPreset(preset) {
+      window.parent.postMessage({ type: 'SET_CLOAK', preset: preset }, '*');
+    }
+  </script>
+</body>
+</html>
