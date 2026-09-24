@@ -1,31 +1,271 @@
-<main class="viewport" id="viewport-container"></main>
-  
-  <!-- Add any required Scramjet/Epoxy scripts here if you haven't already -->
-  <!-- <script src="scramjet.js"></script> -->
-  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Static</title>
+  <style>
+    :root {
+      --bg-dark: #080b10;
+      --bg-panel: #0f141c;
+      --bg-card: #161d2a;
+      --bg-hover: #1e293b;
+      --accent-blue: #2563eb;
+      --accent-light: #38bdf8;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: #1e293b;
+      --tab-active: #161d2a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .browser-header {
+      background-color: var(--bg-panel);
+      border-bottom: 1px solid var(--border-color);
+      user-select: none;
+    }
+
+    .tab-strip {
+      display: flex;
+      align-items: center;
+      padding: 6px 8px 0 8px;
+      gap: 4px;
+      overflow-x: auto;
+    }
+
+    .tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background-color: transparent;
+      color: var(--text-muted);
+      border-radius: 8px 8px 0 0;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      max-width: 200px;
+      min-width: 120px;
+      border: 1px solid transparent;
+      border-bottom: none;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .tab:hover {
+      background-color: rgba(30, 41, 59, 0.5);
+      color: var(--text-main);
+    }
+
+    .tab.active {
+      background-color: var(--tab-active);
+      color: var(--text-main);
+      border-color: var(--border-color);
+    }
+
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent-blue);
+      border-radius: 8px 8px 0 0;
+    }
+
+    .tab-favicon {
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .tab-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-grow: 1;
+    }
+
+    .tab-close {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 12px;
+      opacity: 0.6;
+    }
+
+    .tab-close:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      opacity: 1;
+    }
+
+    .new-tab-btn {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-bottom: 2px;
+    }
+
+    .new-tab-btn:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-main);
+    }
+
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background-color: var(--bg-panel);
+    }
+
+    .nav-btn {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .nav-btn:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-main);
+    }
+
+    .address-bar-container {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      background-color: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 0 12px;
+      height: 34px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .address-bar-container:focus-within {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    }
+
+    .address-icon {
+      color: var(--text-muted);
+      margin-right: 8px;
+      font-size: 13px;
+    }
+
+    .address-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-size: 13px;
+    }
+
+    .address-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .viewport {
+      flex-grow: 1;
+      position: relative;
+      background-color: var(--bg-dark);
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background-color: var(--bg-dark);
+    }
+  </style>
+</head>
+<body>
+  <header class="browser-header">
+    <div class="tab-strip" id="tab-strip">
+      <button class="new-tab-btn" id="new-tab-btn" title="New Tab">+</button>
+    </div>
+    <div class="nav-bar">
+      <button class="nav-btn" id="btn-back" title="Back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <button class="nav-btn" id="btn-forward" title="Forward">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="nav-btn" id="btn-reload" title="Reload">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      </button>
+      <button class="nav-btn" id="btn-home" title="Home">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </button>
+
+      <div class="address-bar-container">
+        <span class="address-icon">🔒</span>
+        <input type="text" id="address-input" class="address-input" placeholder="Search with Google or enter address" spellcheck="false" autocomplete="off" />
+      </div>
+    </div>
+  </header>
+
+  <main class="viewport" id="viewport-container"></main>
+
   <script>
-        window.scramjetReady = false;
-        window.scramjetCtrl = null;
-        window.scramjetFrame = null;
-        
-        async function initScramjet() {
-            try {
-                if ("serviceWorker" in navigator) {
-                    await navigator.serviceWorker.register("/sw.js");
-                    await navigator.serviceWorker.ready;
-                    const sw = navigator.serviceWorker.controller || (await navigator.serviceWorker.ready).active;
-                    const transport = new self.EpoxyTransport.default({ wisp: "wss://wisp.mercurywork.shop/" });
-                    await transport.init();
-                    window.scramjetCtrl = new $scramjetController.Controller({ serviceworker: sw, transport, scramjetConfig:$scramjet.defaultConfig });
-                    await window.scramjetCtrl.wait();
-                    window.scramjetReady = true;
-                }
-            } catch(e) {
-                console.error("Scramjet init error:", e);
-            }
+    window.scramjetReady = false;
+    window.scramjetCtrl = null;
+    window.scramjetFrame = null;
+
+    async function initScramjet() {
+      try {
+        if ("serviceWorker" in navigator) {
+          await navigator.serviceWorker.register("/sw.js");
+          await navigator.serviceWorker.ready;
+          if (typeof $scramjetController !== "undefined" && typeof EpoxyTransport !== "undefined") {
+            const sw = navigator.serviceWorker.controller || (await navigator.serviceWorker.ready).active;
+            const transport = new self.EpoxyTransport.default({ wisp: "wss://wisp.mercurywork.shop/" });
+            await transport.init();
+            window.scramjetCtrl = new $scramjetController.Controller({ serviceworker: sw, transport, scramjetConfig: $scramjet.defaultConfig });
+            await window.scramjetCtrl.wait();
+            window.scramjetReady = true;
+          }
         }
-        initScramjet();
-  </script> <!-- THIS WAS MISSING! -->
+      } catch(e) {
+        console.error("Scramjet Init Error:", e);
+      }
+    }
+    initScramjet();
+  </script>
 
   <script src="home/script.js"></script>
 </body>
