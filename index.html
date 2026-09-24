@@ -240,6 +240,25 @@
   </header>
 
   <main class="viewport" id="viewport-container"></main>
+   <script>
+        window.scramjetReady = false;
+        window.scramjetCtrl = null;
+        window.scramjetFrame = null;
+        async function initScramjet() {
+            try {
+                if ("serviceWorker" in navigator) {
+                    await navigator.serviceWorker.register("/sw.js");
+                    await navigator.serviceWorker.ready;
+                    const sw = navigator.serviceWorker.controller || (await navigator.serviceWorker.ready).active;
+                    const transport = new self.EpoxyTransport.default({ wisp: "wss://wisp.mercurywork.shop/" });
+                    await transport.init();
+                    window.scramjetCtrl = new $scramjetController.Controller({ serviceworker: sw, transport, scramjetConfig:$scramjet.defaultConfig });
+                    await window.scramjetCtrl.wait();
+                    window.scramjetReady = true;
+                }
+            } catch(e) {}
+        }
+        initScramjet();
 
   <script src="home/script.js"></script>
 </body>
